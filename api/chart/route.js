@@ -5,7 +5,7 @@ export async function GET() {
   }
 
   try {
-    const url = `https://api.twelvedata.com/time_series?symbol=NKY&interval=30min&outputsize=60&apikey=${key}`;
+    const url = `https://api.twelvedata.com/time_series?symbol=N225&interval=30min&outputsize=60&apikey=${key}`;
     const res = await fetch(url);
     const data = await res.json();
 
