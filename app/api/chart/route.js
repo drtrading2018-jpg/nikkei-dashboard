@@ -1,6 +1,6 @@
 export async function GET() {
   try {
-    const url = "https://query1.finance.yahoo.com/v8/finance/chart/%5EN225?range=2d&interval=30m";
+    const url = "https://query1.finance.yahoo.com/v8/finance/chart/%5EN225?range=1d&interval=30m";
     const res = await fetch(url, { headers: { "Accept": "application/json" } });
     const raw = await res.text();
 
@@ -21,12 +21,15 @@ export async function GET() {
     const closes = result.indicators?.quote?.[0]?.close || [];
 
     const points = timestamps
-      .map((t, i) => ({
-        time: new Date(t * 1000).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
-        price: closes[i],
-      }))
+      .map((t, i) => {
+        const d = new Date(t * 1000);
+        return {
+          time: d.toLocaleDateString("en-GB", { day: "numeric", month: "short" }) + " " + d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
+          price: closes[i],
+        };
+      })
       .filter((p) => p.price !== null && p.price !== undefined)
-      .slice(-60);
+      .slice(-30);
 
     if (points.length === 0) {
       return Response.json({ error: "Chart data was empty after filtering" }, { status: 502 });
@@ -34,6 +37,9 @@ export async function GET() {
 
     return Response.json({ points });
   } catch (err) {
+    return Response.json({ error: err.message }, { status: 500 });
+  }
+}
     return Response.json({ error: err.message }, { status: 500 });
   }
 }
